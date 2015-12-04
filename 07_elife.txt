@@ -36,7 +36,7 @@ direction: a string to represent direction
 
 originChar: a character to represent the entity on the map
 
-toAct:
+act:
   a function that returns an action object, leave func empty in this object
   example (type can be "reproduce", "move", "eat" or "grow"):
   returns {type: "move", direction: this.direction};
@@ -44,23 +44,23 @@ toAct:
 
 ==== Animal (child of Entity) ====
 ===== Overides =====
-toAct: override this function so it checks for empty spaces and then moves
+act: override this function so it checks for empty spaces and then moves
 in the direction of an empty space. Examine the View object to see how you
 might be able to do this.
 
 ==== Plant (child of Entity) ====
 ===== Overides =====
-toAct: override this function so it checks its energy levels, if they are high
+act: override this function so it checks its energy levels, if they are high
 return a reproduce action, else return a grow action.
 
 ==== Herbivore (child of Animal) ====
 ===== Overides =====
-toAct: override this function so that if it is adjacent to a plant it eats it
+act: override this function so that if it is adjacent to a plant it eats it
 else if it has high energy it reproduces, otherwise have it move
 
 ==== Carnivore (child of Animal) ====
 ===== Overides =====
-toAct: override this function so that if it is adjacent to an Herbivore it eats it
+act: override this function so that if it is adjacent to an Herbivore it eats it
 else if it has high energy it reproduces, otherwise have it move
 
 
@@ -347,11 +347,10 @@ ifdef::interactive_target[]
 //Entity this is the parent class
 function Entity(){
   return {
-    act:true,
     energy: 10,
     originChar: 'O',
     direction: 'n',
-    toAct: function(){
+    act: function(){
       //console.log('Not yet implemented');
       //return {type:"move", direction: thisdirection};
 
@@ -369,9 +368,9 @@ function Entity(){
 //The wall element inherits from Entity
 function Wall() {
   var self = new Entity();
-  //override toAct
+  //override act
   self.act=false;
-  self.toAct = function(){
+  self.act = function(){
     //do nothing
   };
   return self;
