@@ -153,10 +153,7 @@ function randomElement(array) {
 //the legend is just a map of characters like '@' & 'O' that gives them what
 // Object their value is
 function elementFromChar(legend, ch) {
-  console.log(ch);
-  console.log(legend);
-  console.log(legend[ch]);
-  if (ch == " ")
+  if (ch == " " || !ch)
     return null;
   var element = legend[ch]();
   element.originChar = ch;
@@ -177,7 +174,7 @@ function charFromElement(element) {
 //letAct: perform the action of the entity
 //checkDestination: checks to see that the destination is valid in the grid
 function World(map, legend) {
-console.log('world');
+
   //create a grid from the given map
   var grid = new Grid(map[0].length, map.length);
   this.grid = grid;
@@ -189,9 +186,7 @@ console.log('world');
       //for every space in the map, get what character
       //is there and look up what element it belongs to
       //set the element in the grid.
-      console.log(line[x]);
-      grid.set(new Vector(x, y),
-               elementFromChar(legend, line[x]));
+      grid.set(new Vector(x, y), elementFromChar(legend, line[x]));
   });
 }
 World.prototype.toString = function() {
@@ -313,7 +308,7 @@ actionTypes.reproduce = function(entity, vector, action) {
 //LifelikeWorld is a child of World
 //It works the same way but overrides the letAct function
 //It allows for animals and plants to do more advanced actions
-//It also manages the nergy of animals and plants
+//It also manages the energy of animals and plants
 //If they run out of energy they die
 //If they eat or grow they gain energy
 function LifelikeWorld(map, legend) {
@@ -333,8 +328,39 @@ LifelikeWorld.prototype.letAct = function(entity, vector) {
   }
 };
 
+//Entity this is the parent class
+function Entity(){
+  return {
+    energy: 10,
+    originChar: 'O',
+    direction: 'n',
+    toAct: function(){
+      //console.log('Not yet implemented');
+      return {type:"move", direction: this.direction};
+    }
+  };
+}
+
+function Plant(){
+  return {
+    energy: 10,
+    originChar: 'O',
+    direction: 'n',
+    toAct: function(){
+      //console.log('Not yet implemented');
+      return {type:"move", direction: this.direction};
+    }
+  };
+}
+
 //The wall element
-function Wall() {}
+function Wall() {
+  var self = new Entity();
+  self.toAct = function(){
+    //do nothing
+  };
+  return self;
+}
 
 
 ----
@@ -354,23 +380,12 @@ ifdef::interactive_target[]
 
 // Your code here
 
-//Entity this is the parent class
-function Entity(){
-  return {
-    energy: 10,
-    originChar: 'O',
-    direction: 'n',
-    toAct: function(){
-      //console.log('Not yet implemented');
-      return {type:"move", direction: this.direction};
-    }
-  };
-}
 
 //uncomment entities from the legend as you implement them
 var legend = {
   "#": Wall,
-  "O": Entity
+  "O": Entity,
+  "*": Plant
 };
 
 //to add an entity to the map replace an empty character with your entitycharacter
