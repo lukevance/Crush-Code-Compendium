@@ -5,7 +5,7 @@
 
 For OSX, you can use port or brew to install the asciidoc package.
 
-    brea install asciidoc
+    brew install asciidoc
     npm install --production
     make html
 
