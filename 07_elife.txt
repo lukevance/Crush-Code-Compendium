@@ -1,4 +1,3 @@
-:chap_num: 7
 :prev_link: 06_object
 :next_link: 08_error
 :load_files: ["code/chapter/07_elife.js", "code/animateworld.js"]
@@ -9,19 +8,61 @@
 === Learning Objectives ===
 
 This last week we focused on learning object oriented design.
-Let's test ourselves for weak points and solidify our understand through practicing encapsulation, abstraction, inheritance and polymorphism.
+Let's test ourselves for weak points and solidify our understand through practicing
+encapsulation, abstraction, inheritance and polymorphism.
 
 
 === Instructions ===
 
-Overview:
-  Lets program a simulated world filled with different animals and plants.
-  The world is visually represented by a grid of ASCII characters.
-  The ever n milliseconds the world executes a turn.
-  Every turn the animals and plants have an opportunity to take an action.
+==== Overview ====
+Lets program a simulated world filled with different animals and plants.
+The world is visually represented by a grid of ASCII characters.
+The ever n milliseconds the world executes a turn.
+Every turn the animals and plants have an opportunity to take an action.
 
-1. We have been provided with a lot of code, be sure to read through the code provided and ensure you understand it.
-2. We have been provided with a list of objects to implement, go through implementing them one at a time and testing often.
+1. We have been provided with a lot of code, be sure to read through the code
+      provided and ensure you understand it.
+2. We have been provided with a list of objects to implement, go through
+      implementing them one at a time and testing often.
+
+=== Implement ===
+
+==== Entity ====
+===== Interface =====
+
+energy: a number to default to 0
+
+direction: a string to represent direction
+
+originChar: a character to represent the entity on the map
+
+toAct:
+  a function that returns an action object, leave func empty in this object
+  example (type can be "reproduce", "move", "eat" or "grow"):
+  returns {type: "move", direction: this.direction};
+
+
+==== Animal (child of Entity) ====
+===== Overides =====
+toAct: override this function so it checks for empty spaces and then moves
+in the direction of an empty space. Examine the View object to see how you
+might be able to do this.
+
+==== Plant (child of Entity) ====
+===== Overides =====
+toAct: override this function so it checks its energy levels, if they are high
+return a reproduce action, else return a grow action.
+
+==== Herbivore (child of Animal) ====
+===== Overides =====
+toAct: override this function so that if it is adjacent to a plant it eats it
+else if it has high energy it reproduces, otherwise have it move
+
+==== Carnivore (child of Animal) ====
+===== Overides =====
+toAct: override this function so that if it is adjacent to an Herbivore it eats it
+else if it has high energy it reproduces, otherwise have it move
+
 
 === Provided Code ===
 
@@ -29,7 +70,15 @@ Overview:
 
 [source,javascript]
 ----
-/'use strict';
+
+//Vectors represents position and movement in the grid
+function Vector(x, y) {
+  this.x = x;
+  this.y = y;
+}
+Vector.prototype.plus = function(other) {
+  return new Vector(this.x + other.x, this.y + other.y);
+};
 
 //This is an example map
 //It is array of characters
@@ -101,11 +150,14 @@ function randomElement(array) {
 
 
 //get the element from the legend for the given character
-//the legend is just a map of characters like '@' & 'O' that gives them what Object their value is
+//the legend is just a map of characters like '@' & 'O' that gives them what
+// Object their value is
 function elementFromChar(legend, ch) {
+  console.log(ch);
+  console.log(legend);
   if (ch == " ")
     return null;
-  var element = new legend[ch]();
+  var element = legend[ch]();
   element.originChar = ch;
   return element;
 }
@@ -132,7 +184,8 @@ function World(map, legend) {
   //loop through the map and its lines
   map.forEach(function(line, y) {
     for (var x = 0; x < line.length; x++)
-      //for every space in the map, get what character is there and look up what element it belongs to
+      //for every space in the map, get what character
+      //is there and look up what element it belongs to
       //set the element in the grid.
       grid.set(new Vector(x, y),
                elementFromChar(legend, line[x]));
@@ -281,37 +334,6 @@ LifelikeWorld.prototype.letAct = function(entity, vector) {
 function Wall() {}
 
 
-//Solution
-//Entity this is the parent class
-function Entity(){
-  return {
-    energy: 0,
-    direction: 'n',
-    act: function(){
-      console.log('Not yet implemented');
-    }
-  };
-}
-
-var valley = new LifelikeWorld(
-  ["############################",
-   "#####                 ######",
-   "##   ***                **##",
-   "#   *##**         **  O  *##",
-   "#    ***     O    ##**    *#",
-   "#       O         ##***    #",
-   "#                 ##**     #",
-   "#   O       #*             #",
-   "#*          #**       O    #",
-   "#***        ##**    O    **#",
-   "##****     ###***       *###",
-   "############################"],
-  {"#": Wall,
-   "O": PlantEater,
-   "*": Plant}
-);
-
-
 ----
 
 // include_code
@@ -330,40 +352,48 @@ ifdef::interactive_target[]
 // Your code here
 
 //Entity this is the parent class
-function Entity() {}
+function Entity(){
+  return {
+    energy: 10,
+    originChar: '@',
+    direction: 'n',
+    toAct: function(){
+      //console.log('Not yet implemented');
+      return {type:"move", direction: this.direction};
+    }
+  };
+}
 
 //uncomment entities from the legend as you implement them
 var legend = {
   "#": Wall,
-  "@": Carnivore,
-  "O": Herbivore,
-  "*": Plant
+  "@": Entity
 };
 
-//to add an entity to the map replace an empty character with your entity character
-var map = ["####################################################",
-  "#                 ####                           ###",
-  "#         ##                 ########             ##",
-  "#        ##                                        #",
-  "#       ##                         ##########      #",
-  "#      ##                                          #",
-  "#      #              #########                    #",
-  "#      #                      #                    #",
-  "#     ##              #       #               ######",
-  "#                     #       #               #    #",
-  "#                     #  ######                    #",
-  "###                                                #",
-  "#                                                  #",
-  "#         ##  ##  ##  ##               ###         #",
-  "#              #                      #####        #",
-  "##             #  #                    ###         #",
-  "###               #                                #",
-  "####################################################"
-];
+//to add an entity to the map replace an empty character with your entitycharacter
+var map =
+["####################################################",
+ "#                 ####                           ###",
+ "#      @  ##                 ########             ##",
+ "#        ##                                        #",
+ "#       ##                         ##########      #",
+ "#      ##                                          #",
+ "#      #              #########                    #",
+ "#      #                      #                    #",
+ "#     ##              #       #               ######",
+ "#             @       #       #               #    #",
+ "#                     #  ######                    #",
+ "###                                                #",
+ "#                                @                 #",
+ "#         ##  ##  ##  ##               ###         #",
+ "#              #                      #####        #",
+ "##             #  #                    ###         #",
+ "###               #                                #",
+ "####################################################"];
 var world = new LifelikeWorld(map, legend);
 
 //Megaman EXECUTE! \o/
-animateWorld(world);
+//animateWorld(world);
 ----
 
 endif::interactive_target[]
