@@ -347,21 +347,6 @@ ifdef::interactive_target[]
 //Entity this is the parent class
 function Entity(){
   return {
-    energy: 10,
-    originChar: 'O',
-    direction: 'n',
-    act: function(view){
-      //console.log('Not yet implemented');
-      //return {type:"move", direction: thisdirection};
-
-      var space = view.find(" ");
-
-      if (view.look(this.direction) != " " && space){
-          this.direction = space;
-      }
-
-      return {type: "move", direction: this.direction};
-    }
   };
 }
 
