@@ -350,7 +350,7 @@ function Entity(){
     energy: 10,
     originChar: 'O',
     direction: 'n',
-    act: function(){
+    act: function(view){
       //console.log('Not yet implemented');
       //return {type:"move", direction: thisdirection};
 
